@@ -1,0 +1,50 @@
+# ============================================================================
+# CoinDex Pro — Worker configuration (Phase 3 foundation)
+#
+# Provisioning steps (run once, from a machine with wrangler, or the Cloudflare
+# dashboard). The IDs below are PLACEHOLDERS — replace with the real ones the
+# commands print, otherwise deploy will fail (intentionally: no fabricated IDs).
+#
+#   1) Create the D1 database:
+#        wrangler d1 create coindex-db
+#      → copy the printed database_id into [[d1_databases]].database_id below.
+#
+#   2) Apply the schema:
+#        wrangler d1 execute coindex-db --file=schema.sql
+#
+#   3) Create the KV namespace:
+#        wrangler kv:namespace create CACHE
+#      → copy the printed id into [[kv_namespaces]].id below.
+#
+#   4) Set secrets (not stored in this file):
+#        wrangler secret put ADMIN_KEY
+#
+# Until the real IDs are filled in, keep the [[d1_databases]] / [[kv_namespaces]]
+# blocks commented so the existing proxy worker still deploys unchanged.
+# ============================================================================
+
+name = "coindex-proxy-v2"
+main = "worker.js"
+compatibility_date = "2024-09-23"
+
+# ---- Plain env vars (safe to commit; non-secret feature flags) -------------
+[vars]
+GOPLUS_ENABLED  = "false"     # flip to "true" once token-security feature ships
+BACKFILL_ENABLED = "false"    # flip to "true" once backfill worker is wired
+
+# ---- D1 database binding (env.DB) ------------------------------------------
+# Uncomment and fill database_id after `wrangler d1 create coindex-db`.
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "coindex-db"
+# database_id = "REPLACE_WITH_REAL_D1_DATABASE_ID"
+
+# ---- KV namespace binding (env.CACHE) --------------------------------------
+# Uncomment and fill id after `wrangler kv:namespace create CACHE`.
+# [[kv_namespaces]]
+# binding = "CACHE"
+# id = "REPLACE_WITH_REAL_KV_NAMESPACE_ID"
+
+# ---- Secrets (DO NOT put here; set via `wrangler secret put`) ---------------
+#   ADMIN_KEY            -> protects the future admin dashboard
+#   CRYPTOCOMPARE_API_KEY-> already used by the existing news route (optional)
